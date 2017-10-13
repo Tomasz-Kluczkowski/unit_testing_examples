@@ -1,0 +1,4 @@
+{
+  "test_fridge.py::test_incorrect_init_parameters": true,
+  "test_fridge.py::test_set_target_speed": true
+}
