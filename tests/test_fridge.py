@@ -17,6 +17,19 @@ def loaded_fridge():
     return _fridge
 
 
+# This fixture allows parametrizing it from the test.
+@pytest.fixture(scope="module")
+def loaded_fridge_param(request):
+    """Create Fridge object for testing with adjustable attributes."""
+
+    load, temp, base_speed, inverter = request.param
+
+    _fridge = Fridge(load=load, temp=temp, base_speed=base_speed,
+                     inverter=inverter)
+
+    return _fridge
+
+
 @pytest.fixture(scope="function")
 def mock_inverter(current_speed):
     """Substitute our inverter object with a fake one.
@@ -54,26 +67,45 @@ def test_get_fan_speed_setting(loaded_fridge):
     assert loaded_fridge.get_fan_speed_setting() == 1500
 
 
+# (load, temp, base_speed, inverter_type, fan_speed_setting)
+fridge_parameters = [((0, 5, 500, "INV2401PH"), 500),
+                     ((5, 0, 100, "INV2403PH"), 125),
+                     ((15, 15, 700, "INV4401PH"), 1225),
+                     ((3, 9, 300, "INV4403PH"), 345)]
+
+
+# Indirect parametrization - passing arguments to fixtures.
+@pytest.mark.parametrize("loaded_fridge_param, expected", fridge_parameters,
+                         indirect=["loaded_fridge_param"])
+def test_instantiation_multiple(loaded_fridge_param, expected):
+    """Test initialization of the Fridge class."""
+
+    assert loaded_fridge_param.get_fan_speed_setting() == expected
+
+
+temp_data = [(10, 10),
+             (8, 8),
+             (14, 14),
+             (6, 6)]
+
+
+# Simple parametrization of test itself.
 # Test an incoming command (from the display PCB).
-def test_set_temp(loaded_fridge):
+@pytest.mark.parametrize("test_temp, expected", temp_data)
+def test_set_temp(loaded_fridge, test_temp, expected):
     """Test correct setting of the target temperature."""
 
-    loaded_fridge.set_temp(3)
+    loaded_fridge.set_temp(test_temp)
 
-    assert loaded_fridge.temp == 3
-
-
-# # Test outgoing command with a correct response from dependencies.
-# def test_set_target_speed(loaded_fridge, mock_inverter):
-#     """Test behavior of fridge when current speed matches set speed."""
+    assert loaded_fridge.temp == expected
 #
-#     inverter = mock_inverter
-#     loaded_fridge.set_target_speed(1200)
-
-
-
-
-
+#
+# # # Test outgoing command with a correct response from dependencies.
+# # def test_set_target_speed(loaded_fridge, mock_inverter):
+# #     """Test behavior of fridge when current speed matches set speed."""
+# #
+# #     inverter = mock_inverter
+# #     loaded_fridge.set_target_speed(1200)
 
 
 if __name__ == "__main__":
