@@ -30,14 +30,10 @@ def loaded_fridge_param(request):
 
 
 @pytest.fixture(scope="function")
-def mock_inverter(request):
-    """Substitute our _inverter object with a fake one.
-    Allows setting current speed to test multiple conditions."""
-
-    current_speed = request.param
+def mock_inverter():
+    """Substitute our _inverter object with a fake one."""
 
     _inverter = mock.Mock()
-    _inverter.get_current_speed.return_value = current_speed
 
     return _inverter
 
@@ -101,85 +97,20 @@ def test_set_temp(loaded_fridge, test_temp, expected):
     assert loaded_fridge.temp == expected
 
 
-def test_get_temp(loaded_fridge):
-    """Test getting temperature reading for the display PCB."""
-
-    assert loaded_fridge.get_temp() == loaded_fridge.temp
-
-test_data = [(1000, 1000), (1200, 1200), (1300, 1300), (1400, 1400)]
-# Test outgoing command was sent out to the _inverter and a correct response
-#  was received.
-@pytest.mark.parametrize("mock_inverter, expected", test_data,
-                         indirect=["mock_inverter"])
-def test_set_target_speed(mock_inverter, expected):
-    """Test behavior of fridge when current speed matches set speed."""
+# def test_get_temp(loaded_fridge):
+#     """Test getting temperature reading for the display PCB."""
+#
+#     assert loaded_fridge.get_temp() == loaded_fridge.temp
+#
+#
+# Test outgoing command was sent out to the _inverter with correct a parameter.
+def test_set_target_speed(mock_inverter):
+    """Test outgoing command called with correct parameter."""
 
     fridge = Fridge(mock_inverter)
-    fridge.set_target_speed(expected)
+    fridge.set_target_speed(1000)
 
-    mock_inverter.set_target_speed.assert_called_once_with(expected)
-
-
-# Test outgoing command raises exception on incorrect response from _inverter.
-@pytest.mark.parametrize("mock_inverter", [1000, 1200, 1300, 1400],
-                         indirect=["mock_inverter"])
-def test_raises_exception_if_curr_spd_not_target(mock_inverter):
-    """Test behavior of fridge when current speed differs from set speed."""
-
-    with pytest.raises(ValueError,
-                       message="Unable to confirm fan speed change."):
-
-        fridge = Fridge(mock_inverter)
-        fridge.set_target_speed(1500)
-
-
-class TestApiCalls(object):
-    """Test contacting web based API."""
-
-    URL = "https://get_more_beer.com"
-    num_of_bottles = 20
-    payload = {"num_bot": num_of_bottles,
-               "delivery_address": "my_fridge_obviously"}
-    reply = [{"order_status": "confirmed", "amount_ordered": num_of_bottles}]
-
-    @pytest.fixture(scope="function")
-    def mock_response_200(self):
-        """Provide a substitute for web based API call."""
-
-        mock_response = mock.Mock()
-        mock_response.return_value.status_code = 200
-        mock_response.return_value.json.return_value = self.reply
-
-        return mock_response
-
-    @pytest.fixture(scope="function")
-    def mock_response_400(self):
-        """Provide a substitute for web based API call."""
-
-        mock_response = mock.Mock()
-        mock_response.return_value.status_code = 400
-
-        return mock_response
-
-    # Test contacting external web based API with a response 200.
-    def test_order_beer_response_200(self, loaded_fridge, mock_response_200, monkeypatch):
-        """Test contacting web based API."""
-
-        monkeypatch.setattr("fridge.requests.post", mock_response_200)
-
-        loaded_fridge.order_beer(self.num_of_bottles)
-        mock_response_200.assert_called_with(self.URL, data=self.payload)
-
-        assert loaded_fridge.order_beer(self.num_of_bottles).json() == self.reply
-
-    # Test contacting external web based API with a response 400.
-    def test_order_beer_response_400(self, loaded_fridge, mock_response_400, monkeypatch):
-        """Test contacting web based API."""
-
-        monkeypatch.setattr("fridge.requests.post", mock_response_400)
-
-        assert loaded_fridge.order_beer(self.num_of_bottles) == "incorrect_response: 400"
-        mock_response_400.assert_called_with(self.URL, data=self.payload)
+    mock_inverter.set_target_speed.assert_called_once_with(1000)
 
 
 if __name__ == "__main__":

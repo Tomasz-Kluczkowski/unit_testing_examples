@@ -1,3 +1,6 @@
+import requests
+
+
 class Fridge(object):
     """Keeps the brew intact."""
 
@@ -27,12 +30,12 @@ class Fridge(object):
         """Provide fan speed setting to the display PCB."""
 
         return self._base_speed * self._fan_speed_factor()
-    #
-    # # Answer an incoming query (from the display PCB).
-    # def get_temp(self):
-    #     """Provide temperature reading for the display PCB."""
-    #
-    #     return self.temp
+
+    # Answer an incoming query (from the display PCB).
+    def get_temp(self):
+        """Provide temperature reading for the display PCB."""
+
+        return self.temp
 
     # Perform an incoming command - change the temperature.
     def set_temp(self, new_temp):
@@ -45,3 +48,30 @@ class Fridge(object):
         """Sets new fan target speed."""
 
         self._inverter.set_target_speed(target_speed)
+
+        if self.get_current_speed() != target_speed:
+
+            raise ValueError("Unable to confirm fan speed change.")
+
+    # Outgoing query.
+    def get_current_speed(self):
+        """Contact _inverter to get current fan speed."""
+
+        return self._inverter.get_current_speed()
+
+    # Contacting web based API.
+    def order_beer(self, num_of_bottles):
+        """Contact web based API to order more beer."""
+
+        payload = {"num_bot": num_of_bottles,
+                   "delivery_address": "my_fridge_obviously"}
+        response = requests.post("https://get_more_beer.com", data=payload)
+
+        if response.status_code == 200:
+
+            return response
+
+        else:
+
+            return "incorrect_response: {0}".format(response.status_code)
+
