@@ -6,17 +6,20 @@ class Fridge(object):
     def __init__(self, inverter, load=0, temp=8, base_speed=500):
         """Start chilling with factory settings."""
 
-        if temp < 1:
-            raise ValueError("Ice cream or beer Sir?")
-
         self.load = load
         self.temp = temp
         self._inverter = inverter
         self._base_speed = base_speed
 
+    # Answer an incoming query (from the display PCB).
+    def get_temp(self):
+        """Provide temperature reading for the display PCB."""
+
+        return self.temp
+
     # Private method.
     def _fan_speed_factor(self):
-        """Calculate fan speed adjustment for the load."""
+        """Calculate fan speed factor for the load."""
 
         _fan_speed_factor = (self.max_load + self.load) / self.max_load
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
@@ -27,16 +30,13 @@ class Fridge(object):
         """Provide fan speed setting to the display PCB."""
 
         return self._base_speed * self._fan_speed_factor()
-    #
-    # # Answer an incoming query (from the display PCB).
-    # def get_temp(self):
-    #     """Provide temperature reading for the display PCB."""
-    #
-    #     return self.temp
 
     # Perform an incoming command - change the temperature.
     def set_temp(self, new_temp):
         """Set new target temperature."""
+
+        if new_temp < 1:
+            raise ValueError("Ice cream or beer Sir?")
 
         self.temp = new_temp
 
