@@ -55,9 +55,10 @@ def test_set_temp(loaded_fridge):
 def test_raises_exception_when_temp_too_low(loaded_fridge):
     """Test if method raises an exception when temp set < 1."""
 
-    with pytest.raises(ValueError, message="Ice cream or beer Sir?"):
+    with pytest.raises(ValueError) as info:
 
         loaded_fridge.set_temp(-10)
+    assert str(info.value) == "Ice cream or beer Sir?"
 
 
 # Test outgoing command was sent out to the inverter with a correct parameter.
