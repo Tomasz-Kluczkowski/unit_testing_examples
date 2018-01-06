@@ -110,3 +110,4 @@ Python3_Virtual_Env/
 /build_linux_64bit/
 /build_linux_32bit/
 /tests/.cache/v/cache/lastfailed
+/tests/covefrag/
