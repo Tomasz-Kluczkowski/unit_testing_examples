@@ -7,7 +7,7 @@ from fridge import Fridge
 # Scope argument in fixture allows running it once per event.
 # function (default), module, class, session as argument are allowed.
 # autouse=True runs the fixture after launching tests automatically without
-# having to "use it up" in a test - obeying the scope rule.
+# having to "use it up" in a test (and it obeys the scope rules).
 @pytest.fixture(scope="function")
 def loaded_fridge():
     """Create Fridge object for testing."""
