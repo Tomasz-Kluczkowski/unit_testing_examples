@@ -22,7 +22,6 @@ class Fridge(object):
         """Calculate fan speed factor for the load."""
 
         _fan_speed_factor = (self.max_load + self.load) / self.max_load
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
         return _fan_speed_factor
 
     # Answer an incoming query (from the display PCB).

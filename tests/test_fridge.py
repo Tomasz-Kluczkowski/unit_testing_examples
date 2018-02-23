@@ -71,6 +71,11 @@ def test_set_target_speed(mock_inverter):
     mock_inverter.set_target_speed.assert_called_once_with(1000)
 
 
+def test_check(loaded_fridge):
+
+    assert loaded_fridge.check_some() is None
+
+
 if __name__ == "__main__":
     pytest.main()
 
